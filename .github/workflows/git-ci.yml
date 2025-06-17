@@ -29,3 +29,14 @@ jobs:
           context: .
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/nodejs-docker-cicd-pipeline:latest
+      - name: Deploy to EC2 via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ vars.EC2_HOST }}
+          username: ec2-user
+          key: ${{ secrets.EC2_SSH }}
+          script: |
+            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/nodejs-docker-cicd-pipeline:latest
+            docker stop node-app || true
+            docker rm node-app || true
+            docker run -d --name node-app -p 80:5000 ${{ secrets.DOCKERHUB_USERNAME }}/nodejs-docker-cicd-pipeline:latest

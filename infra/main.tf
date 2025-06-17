@@ -40,12 +40,18 @@ resource "aws_instance" "node_app" {
   instance_type = var.instance_type
   key_name      = var.key_name
   security_groups = [aws_security_group.web_sg.name]
+  associate_public_ip_address = false 
 
-  user_data = <<-EOF
-    #!/bin/bash
-    yum update -y
-    EOF
   tags = {
     Name = "nodejs-cicd"
   }
+}
+
+resource "aws_eip" "node_app_eip" {
+  vpc      = true
+}
+
+resource "aws_eip_association" "node_app_eip_assoc" {
+  instance_id   = aws_instance.node_app.id
+  allocation_id = aws_eip.node_app_eip.id
 }
