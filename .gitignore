@@ -1,0 +1,7 @@
+*.pem
+infra/terraform.tfstate
+infra/terraform.tfstate.backup
+infra/.terraform.tfstate.lock.info
+infra/.terraform.lock.hcl
+.terraform/
+.crash/
