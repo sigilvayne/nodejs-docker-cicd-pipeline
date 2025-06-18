@@ -29,6 +29,7 @@ jobs:
           context: .
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/nodejs-docker-cicd-pipeline:latest
+          
       - name: Deploy to EC2 via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -36,7 +37,16 @@ jobs:
           username: ec2-user
           key: ${{ secrets.EC2_SSH }}
           script: |
-            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/nodejs-docker-cicd-pipeline:latest
-            docker stop node-app || true
-            docker rm node-app || true
-            docker run -d --name node-app -p 80:5000 ${{ secrets.DOCKERHUB_USERNAME }}/nodejs-docker-cicd-pipeline:latest
+            DOCKER_USER="${{ secrets.DOCKERHUB_USERNAME}}"
+            DOCKER_PASS="${{ secrets.DOCKERHUB_TOKEN}}"
+            IMAGE_NAME="$DOCKER_USER/nodejs-docker-cicd-pipeline"
+
+            sudo yum update -y
+            sudo yum install docker -y
+            sudo systemctl start docker
+            sudo systemctl enable docker
+
+            echo "$DOCKER_PASS" | sudo docker login -u "$DOCKER_USER" --password-stdin
+
+            sudo docker pull "$IMAGE_NAME"
+            sudo docker run -d -p 80:5000 "$IMAGE_NAME"
