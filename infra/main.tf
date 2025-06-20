@@ -48,7 +48,7 @@ resource "aws_instance" "node_app" {
 }
 
 resource "aws_eip" "node_app_eip" {
-  vpc      = true
+  domain = "vpc"
 }
 
 resource "aws_eip_association" "node_app_eip_assoc" {

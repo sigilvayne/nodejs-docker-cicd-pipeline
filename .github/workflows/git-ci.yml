@@ -29,7 +29,16 @@ jobs:
           context: .
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/nodejs-docker-cicd-pipeline:latest
-          
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Initialize and apply Terraform
+        working-directory: ./infra
+        run: |
+          terraform init
+          terraform apply -auto-approve
+
       - name: Deploy to EC2 via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -44,7 +53,7 @@ jobs:
             sudo yum update -y
             sudo yum install docker -y
             sudo systemctl start docker
-            sudo systemctl enable docker
+            sudo systemctl enable dockercl
 
             echo "$DOCKER_PASS" | sudo docker login -u "$DOCKER_USER" --password-stdin
 
